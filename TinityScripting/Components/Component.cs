@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace TinityScripting.Components;
@@ -32,6 +33,10 @@ public class Component : EngineObject
 
     internal virtual ComponentsBuiltInTypes BuiltInType { get; } = ComponentsBuiltInTypes.None;
     
+    public SceneObject? SceneObject { get; internal set; }
+
+    private EventMethodDelegate AttachMethod;
+    
     protected Component() { }
     
     internal Component(int instanceId, IntPtr unmanagedPtr) : base(instanceId, unmanagedPtr) { }
@@ -47,6 +52,13 @@ public class Component : EngineObject
         {
             var method = type.GetMethod(eventMethod.Value);
             if(method == null) continue;
+
+            if (eventMethod.Key == EventMethodType.Attached)
+            {
+                // Store it to call later when component will be fully attached
+                component.AttachMethod = method.CreateDelegate<EventMethodDelegate>(component);
+                continue;
+            }
             
             var ptr = Marshal.GetFunctionPointerForDelegate(method.CreateDelegate<EventMethodDelegate>(component));
             EventMethodsCache.Add((int)eventMethod.Key, ptr);
@@ -57,5 +69,13 @@ public class Component : EngineObject
         return component;
     }
 
-    internal override void Destroy_Internal() { }
+    internal override void Destroy_Internal()
+    {
+        SceneObject = null;
+    }
+
+    internal void OnAttached_Internal()
+    {
+        AttachMethod?.Invoke();
+    }
 }

@@ -42,6 +42,7 @@ public class SceneObject : EngineObject
         }
         
         var component = Component.CreateComponent_Internal<T>(UnmanagedPtr, out var eventMethodPtrs, out var eventMethodTypes);
+        component.SceneObject = this;
         
         if (!AddComponent(UnmanagedPtr, (int)component.BuiltInType, eventMethodPtrs, 
                 eventMethodTypes, eventMethodPtrs.Length, out var componentPtr, out var instanceId))
@@ -51,6 +52,8 @@ public class SceneObject : EngineObject
         
         component.Setup(instanceId, componentPtr);
         _components.Add(instanceId, component);
+
+        component.OnAttached_Internal();
         
         return component;
     }

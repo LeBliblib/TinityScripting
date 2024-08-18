@@ -11,6 +11,9 @@ public class TestComp : Component
     
     public void OnUpdate()
     {
-        Console.WriteLine("OnUpdate");
+        if (SceneObject == null)
+            return;
+        
+        SceneObject.Transform!.Position += Vector2.Right * 0.05f;
     }
 }

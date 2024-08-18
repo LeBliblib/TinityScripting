@@ -11,5 +11,6 @@ internal class EmptyScene : SceneAsset
         
         var tR = SceneObject.Create();
         tR.AddComponent<TextureRenderer>()?.SetTexture("crown.png");
+        tR.AddComponent<TestComp>();
     }
 }

@@ -17,11 +17,15 @@ public class Scene : EngineObject
     {
         IntPtr unmanagedPtr = CreateSceneObject(out var instanceId, out var transformPtr, out var transformInstanceId);
         
+        var transform = new Transform(transformInstanceId, transformPtr);
+        
         var sceneObject = new SceneObject(instanceId, unmanagedPtr)
         {
             Scene = this,
-            Transform = new Transform(transformInstanceId, transformPtr)
+            Transform = transform
         };
+        
+        transform.SceneObject = sceneObject;
 
         _sceneObjects.Add(instanceId, sceneObject);
         return sceneObject;
