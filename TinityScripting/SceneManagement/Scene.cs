@@ -37,6 +37,11 @@ public class Scene : EngineObject
         _sceneObjects.Remove(instanceId);
     }
     
+    internal bool GetSceneObject(int instanceId, out SceneObject? obj)
+    {
+        return _sceneObjects.TryGetValue(instanceId, out obj);
+    }
+    
     internal static SceneObject CreateSceneObject_Internal()
     {
         if (ActiveScene == null)

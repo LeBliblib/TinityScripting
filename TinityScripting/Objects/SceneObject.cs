@@ -32,8 +32,6 @@ public class SceneObject : EngineObject
     public void Destroy()
     {
         DestroySceneObject(UnmanagedPtr);
-        
-        Destroy_Internal();
     }
     
     public T? AddComponent<T>() where T : Component, new()

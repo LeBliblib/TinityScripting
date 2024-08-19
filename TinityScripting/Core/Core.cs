@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using TinityScripting.SceneManagement;
 using TinityScripting.Components;
 using TinityScripting.Maths;
+using TinityScripting.Objects;
 
 namespace TinityScripting;
 
@@ -38,6 +39,8 @@ public static class Core
     private static void OnGameInitialized()
     {
         _onGameInitializedDelegateHandle.Free();
+        
+        DestroyHandler.Initialize();
         SceneManager.ForceSceneLoad(_defaultScene);
     }
     
