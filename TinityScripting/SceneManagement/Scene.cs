@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using TinityScripting.Components.BuiltIn;
+using TinityScripting.Objects;
 
 namespace TinityScripting.SceneManagement;
 
@@ -10,7 +11,7 @@ public class Scene : EngineObject
     
     public Scene(int instanceId, IntPtr unmanagedPtr) : base(instanceId, unmanagedPtr) { }
     
-    [DllImport("BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+    [DllImport("Library/BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
     private static extern IntPtr CreateSceneObject(out int instanceId, out IntPtr transformPtr, out int transformInstanceId);
     
     private SceneObject CreateSceneObject()

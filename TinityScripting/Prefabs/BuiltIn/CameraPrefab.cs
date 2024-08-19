@@ -1,4 +1,5 @@
 using TinityScripting.Components.BuiltIn;
+using TinityScripting.Objects;
 
 namespace TinityScripting.Prefabs.BuiltIn;
 

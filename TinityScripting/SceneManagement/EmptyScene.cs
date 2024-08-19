@@ -1,4 +1,5 @@
 using TinityScripting.Components.BuiltIn;
+using TinityScripting.Objects;
 
 namespace TinityScripting.SceneManagement;
 
@@ -8,9 +9,5 @@ internal class EmptyScene : SceneAsset
     {
         var obj = SceneObject.Create();
         obj.AddComponent<Camera>();
-        
-        var tR = SceneObject.Create();
-        tR.AddComponent<TextureRenderer>()?.SetTexture("crown.png");
-        tR.AddComponent<TestComp>();
     }
 }

@@ -3,16 +3,19 @@ using TinityScripting.Components;
 using TinityScripting.Components.BuiltIn;
 using TinityScripting.SceneManagement;
 
-namespace TinityScripting;
+namespace TinityScripting.Objects;
 
 public class SceneObject : EngineObject
 {
-    [DllImport("BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+    [DllImport("Library/BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
     private static extern void DestroySceneObject(IntPtr sceneObjectPtr);
 
-    [DllImport("BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+    [DllImport("Library/BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
     private static extern bool AddComponent(IntPtr sceneObjectPtr, int componentType, IntPtr[] eventMethodPtrs,
         int[] eventMethodsType, int eventMethodCount, out IntPtr componentPtr, out int instanceId);
+    
+    [DllImport("Library/BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+    private static extern bool RemoveComponent(IntPtr sceneObjectPtr, int componentId);
     
     private readonly Dictionary<int, Component> _components = new Dictionary<int, Component>();
     
@@ -56,6 +59,14 @@ public class SceneObject : EngineObject
         component.OnAttached_Internal();
         
         return component;
+    }
+
+    public bool RemoveComponent(Component component)
+    {
+        _components.Remove(component.InstanceId);
+        component.Destroy_Internal();
+
+        return RemoveComponent(UnmanagedPtr, component.InstanceId);
     }
 
     internal override void Destroy_Internal()

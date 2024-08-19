@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace TinityScripting;
+namespace TinityScripting.Maths;
 
 [StructLayout(LayoutKind.Sequential)]
 public struct Vector2

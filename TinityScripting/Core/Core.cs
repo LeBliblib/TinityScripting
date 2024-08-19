@@ -1,27 +1,63 @@
+using System.Reflection;
 using System.Runtime.InteropServices;
 using TinityScripting.SceneManagement;
 using TinityScripting.Components;
+using TinityScripting.Maths;
 
-namespace TinityScripting.Core;
+namespace TinityScripting;
 
-public class Core
+public static class Core
 {
-    [DllImport("BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+    [DllImport("Library/BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
     private static extern void InitGame(IntPtr onGameInitializedPtr);
         
-    [DllImport("BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    private static extern void GetPosition(IntPtr transformPtr, out Vector2 position);
+    [DllImport("Library/BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+    private static extern void SetTargetFrameRate(int frameRate);
+    
+    [DllImport("Library/BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+    private static extern void LimitFrameRate(bool value);    
+    
+    [DllImport("Library/BlubEngineCPP_Rider.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+    private static extern void DisplayFps(bool value);
         
-    private static void Main()
+    private static SceneAsset? _defaultScene = null;
+    
+    private delegate void OnGameInitializedDelegate();
+    private static GCHandle _onGameInitializedDelegateHandle;
+    
+    public static void StartGame()
     {
-        var ptr = Marshal.GetFunctionPointerForDelegate(OnGameInitialized);
+        var onGameInitializedDelegate = new OnGameInitializedDelegate(OnGameInitialized);
+        _onGameInitializedDelegateHandle = GCHandle.Alloc(onGameInitializedDelegate);
+        
+        var ptr = Marshal.GetFunctionPointerForDelegate(onGameInitializedDelegate);
+        
         InitGame(ptr);
     }
     
     private static void OnGameInitialized()
     {
-        SceneAsset? defaultScene = null;
-        
-        SceneManager.LoadScene(defaultScene);
+        _onGameInitializedDelegateHandle.Free();
+        SceneManager.ForceSceneLoad(_defaultScene);
+    }
+    
+    public static void SetDefaultScene(SceneAsset sceneAsset)
+    {
+        _defaultScene = sceneAsset;
+    }
+    
+    public static void SetFrameRate(int frameRate)
+    {
+        SetTargetFrameRate(frameRate);
+    }
+    
+    public static void UseFrameRateLimit(bool value)
+    {
+        LimitFrameRate(value);
+    }
+    
+    public static void ShowFps(bool value)
+    {
+        DisplayFps(value);
     }
 }

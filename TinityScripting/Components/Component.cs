@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
+using TinityScripting.Objects;
 
 namespace TinityScripting.Components;
 
@@ -35,7 +36,9 @@ public class Component : EngineObject
     
     public SceneObject? SceneObject { get; internal set; }
 
-    private EventMethodDelegate AttachMethod;
+    private EventMethodDelegate? _attachMethod;
+    
+    private readonly List<GCHandle> _eventMethodHandles = new();
     
     protected Component() { }
     
@@ -50,17 +53,20 @@ public class Component : EngineObject
         var type = typeof(T);
         foreach (var eventMethod in EventMethods)
         {
-            var method = type.GetMethod(eventMethod.Value);
-            if(method == null) continue;
+            var method = type.GetMethod(eventMethod.Value, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (method == null) continue;
 
             if (eventMethod.Key == EventMethodType.Attached)
             {
                 // Store it to call later when component will be fully attached
-                component.AttachMethod = method.CreateDelegate<EventMethodDelegate>(component);
+                component._attachMethod = method.CreateDelegate<EventMethodDelegate>(component);
                 continue;
             }
             
-            var ptr = Marshal.GetFunctionPointerForDelegate(method.CreateDelegate<EventMethodDelegate>(component));
+            var methodDelegate = method.CreateDelegate<EventMethodDelegate>(component);
+            component._eventMethodHandles.Add(GCHandle.Alloc(methodDelegate));
+            
+            var ptr = Marshal.GetFunctionPointerForDelegate(methodDelegate);
             EventMethodsCache.Add((int)eventMethod.Key, ptr);
         }
         
@@ -71,11 +77,17 @@ public class Component : EngineObject
 
     internal override void Destroy_Internal()
     {
+        foreach (var handle in _eventMethodHandles)
+        {
+            handle.Free();
+        }
+        
+        _eventMethodHandles.Clear();
         SceneObject = null;
     }
 
     internal void OnAttached_Internal()
     {
-        AttachMethod?.Invoke();
+        _attachMethod?.Invoke();
     }
 }
