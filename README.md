@@ -1,1 +1,1 @@
-C# scripting APi for Tinity (BlubEngineCPP on github)
+C# scripting APi for Tinity
